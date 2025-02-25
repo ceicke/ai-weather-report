@@ -67,13 +67,19 @@ weather_report = weather_report_response.dig("choices", 0, "message", "content")
 
 p weather_report
 
+animal_presenters = [
+  "cat", "dog", "fox", "raccoon", "owl", "red panda", "hedgehog", "rabbit", "squirrel", "hamster"
+]
+todays_presenter = animal_presenters.sample
+
 image_weather_prompt =  <<-IMAGEPROMPT
-  Show the town of Hamburg, Germany in the picture, weather condition should be taken from the weather report that I give you. The background should change from left to right, depicting the changing weather over the day that is written in the weather forecast.
-  Include a cat in the image wearing clothing which reflects what to wear outside in the current weather conditions. 
-  The cat is a famous tv-presenter from the future who is presenting the weather-report live on-air right now. 
-  Here comes the weather report:
-  #{weather_report}
-  Make it as realistic as possible and also super-dramatic, in black and white for an e-ink display. Do not include text.
+Show the city of Hamburg, Germany with weather conditions based on the provided forecast. Only show rain in portions of the image if it's the dominant weather pattern for a significant part of the day - don't overemphasize precipitation unless it's the main feature of the forecast.
+The background should transition from left to right showing the changing weather throughout the day, giving proportional space to each weather condition based on its duration in the forecast.
+In the foreground, include a fashionable #{todays_presenter} TV presenter wearing clothing appropriate for the current weather conditions. The #{todays_presenter} should be reporting live, with professional poise and dramatic flair.
+Even if cloudy or rainy conditions are mentioned, maintain some contrast and visual clarity in the image. Show Hamburg's iconic architecture regardless of weather.
+The image should be realistic yet dramatic, rendered in high-contrast black and white for an e-ink display. No text should be included.
+Weather forecast details:
+#{weather_report}
 IMAGEPROMPT
 
 response = openai_client.images.generate(
