@@ -46,8 +46,26 @@ openai_client = OpenAI::Client.new(
 weather_report_json = fetch_weather_report()
 
 weather_report_prompt = <<-PROMPT
-  Generate a written weather forecast for the next 24 hours out of this JSON from open metro API. It is an hourly forecast. Include a dedicated part for the current weather conditions:
-  #{weather_report_json}
+Generate a written weather forecast for Hamburg, Germany for the next 24 hours based on this hourly data from the Open-Meteo API. 
+
+Please include:
+- Current conditions (temperature, cloud cover, wind, and any precipitation)
+- Temperature trend throughout the day (high/low, when to expect changes)
+- Precipitation forecast (timing and intensity if any)
+- Wind conditions (speed changes and significant patterns)
+- Cloud cover patterns
+- A brief outlook for tomorrow
+
+Make the report concise but informative, highlighting any notable weather changes.
+When interpreting weather codes, note that:
+- Codes 0-3 represent clear to partly cloudy
+- Codes 45-49 represent fog conditions
+- Codes 51-67 represent different intensities of rain
+- Codes 71-77 represent snow
+- Codes 80-82 represent rain showers
+
+Here's the weather data:
+#{weather_report_json}
 PROMPT
 
 weather_report_response = openai_client.chat(
@@ -97,4 +115,4 @@ FileUtils.mkdir_p(dir_path)
 file_path = "#{dir_path}/#{DateTime.now.to_s}.png"
 save_image_to_disk(image_url, file_path)
 create_symlink(dir_path, file_path)
-#open_image(file_path)
+open_image(file_path)
