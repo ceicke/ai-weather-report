@@ -97,7 +97,7 @@ Show the city of Hamburg, Germany with weather conditions based on the provided 
 The background should transition from left to right showing the changing weather throughout the day, giving proportional space to each weather condition based on its duration in the forecast, include the approximate time of each condition in 24h format.
 In the foreground, include a fashionable #{todays_presenter} TV presenter wearing clothing appropriate for the current weather conditions. The #{todays_presenter} should be reporting live, with professional poise and dramatic flair.
 Even if cloudy or rainy conditions are mentioned, maintain some contrast and visual clarity in the image. Show Hamburg's iconic architecture regardless of weather.
-If possible, include the temperatures for the different weather conditions as degrees celsius, and the wind speed in km/h.
+If possible, include the temperatures for the different weather conditions as degrees celsius, the rain probablility in percentage and the wind speed in km/h.
 The image should be realistic yet dramatic, rendered in high-contrast black and white for an e-ink display.
 Weather forecast details:
 #{weather_report}
@@ -121,4 +121,4 @@ FileUtils.mkdir_p(dir_path)
 file_path = "#{dir_path}/#{DateTime.now.to_s}.png"
 save_image_to_disk(image_b64, file_path)
 create_symlink(dir_path, file_path)
-open_image(file_path)
+#open_image(file_path)
