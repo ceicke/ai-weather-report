@@ -5,11 +5,13 @@ require 'open-uri'
 require 'open_meteo'
 require 'openai'
 require 'dotenv'
+require 'pry'
+require 'base64'
 Dotenv.load
 
-def save_image_to_disk(image_url, file_path)
+def save_image_to_disk(image_b64, file_path)
   File.open(file_path, 'wb') do |file|
-    file.write(HTTParty.get(image_url).parsed_response)
+    file.write(Base64.decode64(image_b64))
   end
 end
 
@@ -83,8 +85,6 @@ weather_report_response = openai_client.chat(
 
 weather_report = weather_report_response.dig("choices", 0, "message", "content")
 
-p weather_report
-
 animal_presenters = [
   "cat", "dog", "fox", "raccoon", "owl", "red panda", "hedgehog", "rabbit", "squirrel", "hamster"
 ]
@@ -95,7 +95,8 @@ Show the city of Hamburg, Germany with weather conditions based on the provided 
 The background should transition from left to right showing the changing weather throughout the day, giving proportional space to each weather condition based on its duration in the forecast.
 In the foreground, include a fashionable #{todays_presenter} TV presenter wearing clothing appropriate for the current weather conditions. The #{todays_presenter} should be reporting live, with professional poise and dramatic flair.
 Even if cloudy or rainy conditions are mentioned, maintain some contrast and visual clarity in the image. Show Hamburg's iconic architecture regardless of weather.
-The image should be realistic yet dramatic, rendered in high-contrast black and white for an e-ink display. No text should be included.
+If possible, include the temperatures for the different weather conditions as degrees celsius, and the wind speed in km/h.
+The image should be realistic yet dramatic, rendered in high-contrast black and white for an e-ink display.
 Weather forecast details:
 #{weather_report}
 IMAGEPROMPT
@@ -103,16 +104,19 @@ IMAGEPROMPT
 response = openai_client.images.generate(
   parameters: {
     prompt: image_weather_prompt,
-    model: "dall-e-3",
-    size: "1792x1024",
-    quality: "standard",
+    model: "gpt-image-1", # Neues Modell für Bildgenerierung
+    size: "1536x1024",
+    #quality: "high",
+    # style: "vivid", # Optional: siehe OpenAI-Doku
+    # response_format: "url" # Standard ist "url"
   }
 )
-image_url = response.dig("data", 0, "url")
+
+image_b64 = response.dig("data", 0, "b64_json")
 
 dir_path = 'output_images'
 FileUtils.mkdir_p(dir_path)
 file_path = "#{dir_path}/#{DateTime.now.to_s}.png"
-save_image_to_disk(image_url, file_path)
+save_image_to_disk(image_b64, file_path)
 create_symlink(dir_path, file_path)
 open_image(file_path)
