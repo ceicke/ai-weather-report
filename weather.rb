@@ -85,6 +85,8 @@ weather_report_response = openai_client.chat(
 
 weather_report = weather_report_response.dig("choices", 0, "message", "content")
 
+p weather_report
+
 animal_presenters = [
   "cat", "dog", "fox", "raccoon", "owl", "red panda", "hedgehog", "rabbit", "squirrel", "hamster"
 ]
@@ -92,7 +94,7 @@ todays_presenter = animal_presenters.sample
 
 image_weather_prompt =  <<-IMAGEPROMPT
 Show the city of Hamburg, Germany with weather conditions based on the provided forecast. Only show rain in portions of the image if it's the dominant weather pattern for a significant part of the day - don't overemphasize precipitation unless it's the main feature of the forecast.
-The background should transition from left to right showing the changing weather throughout the day, giving proportional space to each weather condition based on its duration in the forecast.
+The background should transition from left to right showing the changing weather throughout the day, giving proportional space to each weather condition based on its duration in the forecast, include the approximate time of each condition in 24h format.
 In the foreground, include a fashionable #{todays_presenter} TV presenter wearing clothing appropriate for the current weather conditions. The #{todays_presenter} should be reporting live, with professional poise and dramatic flair.
 Even if cloudy or rainy conditions are mentioned, maintain some contrast and visual clarity in the image. Show Hamburg's iconic architecture regardless of weather.
 If possible, include the temperatures for the different weather conditions as degrees celsius, and the wind speed in km/h.
