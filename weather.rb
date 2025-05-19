@@ -70,6 +70,8 @@ Here's the weather data:
 #{weather_report_json}
 PROMPT
 
+temperature = 0.8
+
 weather_report_response = openai_client.chat(
   parameters: {
     model: "gpt-4o",
@@ -79,7 +81,7 @@ weather_report_response = openai_client.chat(
         content: weather_report_prompt
       }
     ],
-    temperature: 0.2,
+    temperature: temperature,
   }
 )
 
@@ -88,16 +90,17 @@ weather_report = weather_report_response.dig("choices", 0, "message", "content")
 p weather_report
 
 animal_presenters = [
-  "cat", "dog", "fox", "raccoon", "owl", "red panda", "hedgehog", "rabbit", "squirrel", "hamster"
+  "cat", "dog", "fox", "raccoon", "owl", "red panda", "hedgehog", "rabbit", "squirrel", "hamster", "frog", "parrot", "turtle", "chinchilla", "guinea pig", "ferret", "lizard", "snake", "goldfish", "mouse", "rat", "chameleon", "gecko", "axolotl", "octopus", "sea horse",
+  "platypus", "kangaroo", "koala", "panda", "sloth", "lemur", "manatee", "narwhal", "dolphin", "whale", "penguin", "seal", "sea lion", "walrus"
 ]
 todays_presenter = animal_presenters.sample
 
 image_weather_prompt =  <<-IMAGEPROMPT
-Show the city of Hamburg, Germany with weather conditions based on the provided forecast. Only show rain in portions of the image if it's the dominant weather pattern for a significant part of the day - don't overemphasize precipitation unless it's the main feature of the forecast.
+Show the city of Hamburg, Germany with weather conditions based on the provided forecast. 
 The background should transition from left to right showing the changing weather throughout the day, giving proportional space to each weather condition based on its duration in the forecast, include the approximate time of each condition in 24h format.
-In the foreground, include a fashionable #{todays_presenter} TV presenter wearing clothing appropriate for the current weather conditions. The #{todays_presenter} should be reporting live, with professional poise and dramatic flair.
-Even if cloudy or rainy conditions are mentioned, maintain some contrast and visual clarity in the image. Show Hamburg's iconic architecture regardless of weather.
-If possible, include the temperatures for the different weather conditions as degrees celsius, the rain probablility in percentage and the wind speed in km/h.
+In the foreground, include a fashionable #{todays_presenter} TV presenter wearing clothing appropriate for the current weather conditions. The #{todays_presenter} should be reporting live, with professional poise and dramatic flair. The presenter is likely to dress a little less warm than appropriate for the weather.
+Even if cloudy or rainy conditions are mentioned, maintain some contrast and visual clarity in the image. Show Hamburg's iconic architecture and places regardless of weather and don't overemphasize precipitation unless it's the main feature of the forecast for that time period, do not fall into the trap that people think that Hamburg is very rainy.
+If possible, include the temperatures for the different weather conditions as degrees celsius, the time for the weather condition, the rain probablility in percentage and the wind speed in km/h.
 The image should be realistic yet dramatic, rendered in high-contrast black and white for an e-ink display.
 Weather forecast details:
 #{weather_report}
@@ -106,11 +109,8 @@ IMAGEPROMPT
 response = openai_client.images.generate(
   parameters: {
     prompt: image_weather_prompt,
-    model: "gpt-image-1", # Neues Modell für Bildgenerierung
+    model: "gpt-image-1",
     size: "1536x1024",
-    #quality: "high",
-    # style: "vivid", # Optional: siehe OpenAI-Doku
-    # response_format: "url" # Standard ist "url"
   }
 )
 
@@ -121,4 +121,4 @@ FileUtils.mkdir_p(dir_path)
 file_path = "#{dir_path}/#{DateTime.now.to_s}.png"
 save_image_to_disk(image_b64, file_path)
 create_symlink(dir_path, file_path)
-#open_image(file_path)
+open_image(file_path)
