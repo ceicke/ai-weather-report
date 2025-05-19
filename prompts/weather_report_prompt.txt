@@ -1,0 +1,20 @@
+Generate a written weather forecast for Hamburg, Germany for the next 24 hours based on this hourly data from the Open-Meteo API. 
+
+Please include:
+- Current conditions (temperature, cloud cover, wind, and any precipitation)
+- Temperature trend throughout the day (high/low, when to expect changes)
+- Precipitation forecast (timing and intensity if any)
+- Wind conditions (speed changes and significant patterns)
+- Cloud cover patterns
+- A brief outlook for tomorrow
+
+Make the report concise but informative, highlighting any notable weather changes.
+When interpreting weather codes, note that:
+- Codes 0-3 represent clear to partly cloudy
+- Codes 45-49 represent fog conditions
+- Codes 51-67 represent different intensities of rain
+- Codes 71-77 represent snow
+- Codes 80-82 represent rain showers
+
+Here's the weather data:
+{{WEATHER_REPORT_JSON}}

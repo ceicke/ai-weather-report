@@ -7,6 +7,7 @@ require 'openai'
 require 'dotenv'
 require 'pry'
 require 'base64'
+require 'optparse'
 Dotenv.load
 
 def save_image_to_disk(image_b64, file_path)
@@ -23,10 +24,57 @@ def create_symlink(dir_path, file_path)
   FileUtils.copy_file(file_path, dir_path + '/current.png')
 end
 
-def fetch_weather_report
+# Helper to read prompt templates from file and replace placeholders
+def read_prompt_template(file_path, replacements = {})
+  prompt = File.read(file_path)
+  replacements.each do |key, value|
+    prompt.gsub!("{{#{key}}}", value)
+  end
+  prompt
+end
+
+# Default values
+options = {
+  debug: false,
+  open_image: false,
+  temperature: 0.9, # Default temperature set to 0.9
+  latitude: 53.5705, # Hamburg default
+  longitude: 10.0329, # Hamburg default
+  size: "1536x1024" # Default image size
+}
+
+OptionParser.new do |opts|
+  opts.banner = "Usage: ruby weather.rb [options]"
+
+  opts.on("--debug", "Enable debug output") do
+    options[:debug] = true
+  end
+
+  opts.on("--[no-]open-image", "Open image after creation (default: no)") do |v|
+    options[:open_image] = v
+  end
+
+  opts.on("--temperature TEMP", Float, "Temperature for OpenAI (default: 0.9)") do |v|
+    options[:temperature] = v
+  end
+
+  opts.on("--lat LAT", Float, "Latitude (default: 53.5705 for Hamburg)") do |v|
+    options[:latitude] = v
+  end
+
+  opts.on("--lon LON", Float, "Longitude (default: 10.0329 for Hamburg)") do |v|
+    options[:longitude] = v
+  end
+
+  opts.on("--size SIZE", String, "Image size for output (default: 1536x1024)") do |v|
+    options[:size] = v
+  end
+end.parse!
+
+def fetch_weather_report(lat, lon)
   location = OpenMeteo::Entities::Location.new(
-    latitude: 53.5705.to_d, 
-    longitude: 10.0329.to_d
+    latitude: lat.to_d, 
+    longitude: lon.to_d
   )
   variables = { 
     current: %i[], 
@@ -45,32 +93,18 @@ openai_client = OpenAI::Client.new(
   log_errors: true
 )
 
-weather_report_json = fetch_weather_report()
+weather_report_json = fetch_weather_report(options[:latitude], options[:longitude])
 
-weather_report_prompt = <<-PROMPT
-Generate a written weather forecast for Hamburg, Germany for the next 24 hours based on this hourly data from the Open-Meteo API. 
+puts weather_report_json if options[:debug]
 
-Please include:
-- Current conditions (temperature, cloud cover, wind, and any precipitation)
-- Temperature trend throughout the day (high/low, when to expect changes)
-- Precipitation forecast (timing and intensity if any)
-- Wind conditions (speed changes and significant patterns)
-- Cloud cover patterns
-- A brief outlook for tomorrow
+weather_report_prompt = read_prompt_template(
+  File.join(__dir__, 'prompts', 'weather_report_prompt.txt'),
+  { 'WEATHER_REPORT_JSON' => weather_report_json.to_s }
+)
 
-Make the report concise but informative, highlighting any notable weather changes.
-When interpreting weather codes, note that:
-- Codes 0-3 represent clear to partly cloudy
-- Codes 45-49 represent fog conditions
-- Codes 51-67 represent different intensities of rain
-- Codes 71-77 represent snow
-- Codes 80-82 represent rain showers
+puts weather_report_prompt if options[:debug]
 
-Here's the weather data:
-#{weather_report_json}
-PROMPT
-
-temperature = 0.8
+temperature = options[:temperature]
 
 weather_report_response = openai_client.chat(
   parameters: {
@@ -87,7 +121,7 @@ weather_report_response = openai_client.chat(
 
 weather_report = weather_report_response.dig("choices", 0, "message", "content")
 
-p weather_report
+puts weather_report if options[:debug]
 
 animal_presenters = [
   "cat", "dog", "fox", "raccoon", "owl", "red panda", "hedgehog", "rabbit", "squirrel", "hamster", "frog", "parrot", "turtle", "chinchilla", "guinea pig", "ferret", "lizard", "snake", "goldfish", "mouse", "rat", "chameleon", "gecko", "axolotl", "octopus", "sea horse",
@@ -95,22 +129,19 @@ animal_presenters = [
 ]
 todays_presenter = animal_presenters.sample
 
-image_weather_prompt =  <<-IMAGEPROMPT
-Show the city of Hamburg, Germany with weather conditions based on the provided forecast. 
-The background should transition from left to right showing the changing weather throughout the day, giving proportional space to each weather condition based on its duration in the forecast, include the approximate time of each condition in 24h format.
-In the foreground, include a fashionable #{todays_presenter} TV presenter wearing clothing appropriate for the current weather conditions. The #{todays_presenter} should be reporting live, with professional poise and dramatic flair. The presenter is likely to dress a little less warm than appropriate for the weather.
-Even if cloudy or rainy conditions are mentioned, maintain some contrast and visual clarity in the image. Show Hamburg's iconic architecture and places regardless of weather and don't overemphasize precipitation unless it's the main feature of the forecast for that time period, do not fall into the trap that people think that Hamburg is very rainy.
-If possible, include the temperatures for the different weather conditions as degrees celsius, the time for the weather condition, the rain probablility in percentage and the wind speed in km/h.
-The image should be realistic yet dramatic, rendered in high-contrast black and white for an e-ink display.
-Weather forecast details:
-#{weather_report}
-IMAGEPROMPT
+image_weather_prompt = read_prompt_template(
+  File.join(__dir__, 'prompts', 'image_weather_prompt.txt'),
+  {
+    'PRESENTER' => todays_presenter,
+    'WEATHER_REPORT' => weather_report
+  }
+)
 
 response = openai_client.images.generate(
   parameters: {
     prompt: image_weather_prompt,
     model: "gpt-image-1",
-    size: "1536x1024",
+    size: options[:size],
   }
 )
 
@@ -121,4 +152,4 @@ FileUtils.mkdir_p(dir_path)
 file_path = "#{dir_path}/#{DateTime.now.to_s}.png"
 save_image_to_disk(image_b64, file_path)
 create_symlink(dir_path, file_path)
-open_image(file_path)
+open_image(file_path) if options[:open_image]
