@@ -37,7 +37,7 @@ end
 options = {
   debug: false,
   open_image: false,
-  temperature: 0.9, # Default temperature set to 0.9
+  temperature: 0.2, # Default temperature set to 0.9
   latitude: 53.5705, # Hamburg default
   longitude: 10.0329, # Hamburg default
   size: "1536x1024" # Default image size

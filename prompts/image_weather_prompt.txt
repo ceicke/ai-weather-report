@@ -1,8 +1,9 @@
 Show the city of Hamburg, Germany with weather conditions based on the provided forecast. 
 The background should transition from left to right showing the changing weather throughout the day, giving proportional space to each weather condition based on its duration in the forecast, include the approximate time of each condition in 24h format.
-In the foreground, include a fashionable {{PRESENTER}} TV presenter wearing clothing appropriate for the current weather conditions. The {{PRESENTER}} should be reporting live, with professional poise and dramatic flair. The presenter is likely to dress a little less warm than appropriate for the weather.
+In the foreground, include a funny {{PRESENTER}} TV presenter, wearing clothes that one would wear for the weather conditions in 3 hours from now.
+The {{PRESENTER}} should be reporting live, with professional pose and dramatic flair. 
 Even if cloudy or rainy conditions are mentioned, maintain some contrast and visual clarity in the image. Show Hamburg's iconic architecture and places regardless of weather and don't overemphasize precipitation unless it's the main feature of the forecast for that time period, do not fall into the trap that people think that Hamburg is very rainy.
-If possible, include the temperatures for the different weather conditions as degrees celsius, the time for the weather condition, the rain probablility in percentage and the wind speed in km/h.
+If possible, include the temperatures for the different weather conditions as degrees celsius, the time for the weather condition, the rain probablility in percentage and the wind speed in km/h. Wind only if it's significant, e.g. when it's very windy.
 The image should be realistic yet dramatic, rendered in high-contrast black and white for an e-ink display.
 Weather forecast details:
 {{WEATHER_REPORT}}
