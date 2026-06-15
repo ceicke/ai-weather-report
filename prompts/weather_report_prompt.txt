@@ -1,4 +1,7 @@
-Generate a written weather forecast for Hamburg, Germany for the next 24 hours based on this hourly data from the Open-Meteo API. 
+Generate a written weather forecast for Hamburg, Germany for the next 24 hours based on this hourly data from the Open-Meteo API.
+
+The report is being generated on {{CURRENT_WEEKDAY}}, {{CURRENT_DATE}} at {{CURRENT_TIME}}.
+
 
 Please include:
 - Current conditions (temperature, cloud cover, wind, and any precipitation)

@@ -97,9 +97,15 @@ weather_report_json = fetch_weather_report(options[:latitude], options[:longitud
 
 puts weather_report_json if options[:debug]
 
+now = Time.now
 weather_report_prompt = read_prompt_template(
   File.join(__dir__, 'prompts', 'weather_report_prompt.txt'),
-  { 'WEATHER_REPORT_JSON' => weather_report_json.to_s }
+  {
+    'WEATHER_REPORT_JSON' => weather_report_json.to_s,
+    'CURRENT_WEEKDAY' => now.strftime('%A'),
+    'CURRENT_DATE' => now.strftime('%Y-%m-%d'),
+    'CURRENT_TIME' => now.strftime('%H:%M')
+  }
 )
 
 puts weather_report_prompt if options[:debug]
