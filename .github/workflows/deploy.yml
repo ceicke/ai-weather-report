@@ -15,7 +15,7 @@ jobs:
       - name: Deploy via rsync over SSH
         uses: burnett01/rsync-deployments@7.0.1
         with:
-          switches: -avzr --delete --exclude='.git' --exclude='.github'
+          switches: -avzr --delete --exclude='.git' --exclude='.github' --exclude='vendor/'
           path: ./
           remote_path: /home/ceicke/ai-weather-report/
           remote_host: geisterstunde.org
@@ -32,5 +32,7 @@ jobs:
             source /usr/share/rvm/scripts/rvm
             cd /home/ceicke/ai-weather-report
             rvm use 3.4.0
+            export BUNDLE_PATH="vendor/bundle"
+            export BUNDLE_DEPLOYMENT="false"
             bundle install
             bundle exec ruby weather.rb

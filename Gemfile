@@ -6,3 +6,4 @@ gem 'open-meteo'
 gem 'ruby-openai'
 gem 'dotenv'
 gem "pry", "~> 0.15.2"
+gem 'base64'
