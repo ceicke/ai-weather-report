@@ -35,4 +35,4 @@ jobs:
             export BUNDLE_PATH="vendor/bundle"
             export BUNDLE_DEPLOYMENT="false"
             bundle install
-            bundle exec ruby weather.rb
+            bundle exec ruby weather.rb --debug
