@@ -108,7 +108,7 @@ temperature = options[:temperature]
 
 weather_report_response = openai_client.chat(
   parameters: {
-    model: "gpt-4o",
+    model: "gpt-5.5",
     messages: [
       { 
         role: "user", 
@@ -140,7 +140,7 @@ image_weather_prompt = read_prompt_template(
 response = openai_client.images.generate(
   parameters: {
     prompt: image_weather_prompt,
-    model: "gpt-image-1",
+    model: "gpt-image-2",
     size: options[:size],
   }
 )
