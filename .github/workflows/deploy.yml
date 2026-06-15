@@ -1,0 +1,23 @@
+name: Deploy to Server
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:   # allows manual trigger from GitHub UI
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Deploy via rsync over SSH
+        uses: burnett01/rsync-deployments@7.0.1
+        with:
+          switches: -avzr --delete --exclude='.git' --exclude='.github'
+          path: ./
+          remote_path: /home/ceicke/ai-weather-report/
+          remote_host: geisterstunde.org
+          remote_user: ceicke
+          remote_key: ${{ secrets.SSH_KEY }}
