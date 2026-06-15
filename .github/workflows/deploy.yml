@@ -15,7 +15,7 @@ jobs:
       - name: Deploy via rsync over SSH
         uses: burnett01/rsync-deployments@7.0.1
         with:
-          switches: -avzr --delete --exclude='.git' --exclude='.github'
+          switches: -avzr --delete --exclude='.git' --exclude='.github' --exclude='.env' --exclude='output_images/'
           path: ./
           remote_path: /home/ceicke/ai-weather-report/
           remote_host: geisterstunde.org
