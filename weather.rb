@@ -89,7 +89,7 @@ end
 
 api_key = ENV['OPENAI_KEY']
 
-faraday_conn = Faraday.new(url: "https://api.openai.com", request: { open_timeout: 10, timeout: 120 }) do |f|
+faraday_conn = Faraday.new(url: "https://api.openai.com", request: { open_timeout: 10, timeout: 300 }) do |f|
   f.request :json
   f.response :json, content_type: /\bjson$/
   f.adapter Faraday.default_adapter
