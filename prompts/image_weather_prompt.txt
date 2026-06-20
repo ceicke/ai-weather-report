@@ -4,7 +4,8 @@ In the foreground, include a funny {{PRESENTER}}, presenting the weather. The {{
 The {{PRESENTER}} should be reporting live, with professional pose and dramatic flair. 
 Even if cloudy or rainy conditions are mentioned, maintain some contrast and visual clarity in the image. Show Hamburg's iconic architecture and places regardless of weather.
 If possible, include the temperatures for the different weather conditions as degrees celsius, the time for the weather condition, the rain probablility in percentage and the wind speed in km/h. Wind only if it's significant, e.g. when it's very windy.
-The image should be realistic yet dramatic, rendered in high-contrast black and white for an e-ink display. All text should be in German.
+The image should be realistic yet dramatic, rendered in high-contrast black and white for an e-ink display. The display is inside a frame that has a margin of 5mm, so all relevant information should be inside of that margin. 
+All text should be in German.
 
 Weather forecast details:
 {{WEATHER_REPORT}}
