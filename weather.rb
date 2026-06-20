@@ -9,6 +9,7 @@ require 'pry'
 require 'base64'
 require 'faraday'
 require 'optparse'
+require 'timeout'
 Dotenv.load
 
 def save_image_to_disk(image_b64, file_path)
@@ -88,18 +89,33 @@ def fetch_weather_report(lat, lon)
 end
 
 api_key = ENV['OPENAI_KEY']
-
-faraday_conn = Faraday.new(url: "https://api.openai.com", request: { open_timeout: 10, timeout: 300 }) do |f|
-  f.request :json
-  f.response :json, content_type: /\bjson$/
-  f.adapter Faraday.default_adapter
-end
+openai_timeout = ENV.fetch('OPENAI_TIMEOUT', '1200').to_i
+openai_retries = ENV.fetch('OPENAI_RETRIES', '3').to_i
+openai_retry_backoff = ENV.fetch('OPENAI_RETRY_BACKOFF', '4').to_i
 
 openai_client = OpenAI::Client.new(
   access_token: api_key,
   log_errors: true,
-  connection: faraday_conn
+  request_timeout: openai_timeout
 )
+
+def with_openai_retry(max_attempts, backoff_seconds, debug: false)
+  attempts = 0
+  begin
+    attempts += 1
+    start_time = Process.clock_gettime(Process::CLOCK_MONOTONIC)
+    result = yield
+    elapsed = Process.clock_gettime(Process::CLOCK_MONOTONIC) - start_time
+    warn "OpenAI request completed in #{elapsed.round(2)}s on attempt #{attempts}." if debug
+    result
+  rescue Faraday::TimeoutError, Net::ReadTimeout => e
+    raise if attempts >= max_attempts
+    sleep_duration = backoff_seconds**attempts
+    warn "OpenAI request timed out on attempt #{attempts}. Retrying in #{sleep_duration}s..."
+    sleep sleep_duration
+    retry
+  end
+end
 
 weather_report_json = fetch_weather_report(options[:latitude], options[:longitude])
 
@@ -120,18 +136,20 @@ puts weather_report_prompt if options[:debug]
 
 temperature = options[:temperature]
 
-weather_report_response = openai_client.chat(
-  parameters: {
-    model: "gpt-5.5",
-    messages: [
-      { 
-        role: "user", 
-        content: weather_report_prompt
-      }
-    ],
-    temperature: temperature,
-  }
-)
+weather_report_response = with_openai_retry(openai_retries, openai_retry_backoff, debug: options[:debug]) do
+  openai_client.chat(
+    parameters: {
+      model: "gpt-5.5",
+      messages: [
+        { 
+          role: "user", 
+          content: weather_report_prompt
+        }
+      ],
+      temperature: temperature,
+    }
+  )
+end
 
 weather_report = weather_report_response.dig("choices", 0, "message", "content")
 
@@ -151,13 +169,15 @@ image_weather_prompt = read_prompt_template(
   }
 )
 
-response = openai_client.images.generate(
-  parameters: {
-    prompt: image_weather_prompt,
-    model: "gpt-image-2",
-    size: options[:size],
-  }
-)
+response = with_openai_retry(openai_retries, openai_retry_backoff, debug: options[:debug]) do
+  openai_client.images.generate(
+    parameters: {
+      prompt: image_weather_prompt,
+      model: "gpt-image-2",
+      size: options[:size],
+    }
+  )
+end
 
 image_b64 = response.dig("data", 0, "b64_json")
 
