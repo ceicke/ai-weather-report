@@ -7,6 +7,7 @@ require 'openai'
 require 'dotenv'
 require 'pry'
 require 'base64'
+require 'faraday'
 require 'optparse'
 Dotenv.load
 
@@ -88,10 +89,16 @@ end
 
 api_key = ENV['OPENAI_KEY']
 
+faraday_conn = Faraday.new(url: "https://api.openai.com", request: { open_timeout: 10, timeout: 120 }) do |f|
+  f.request :json
+  f.response :json, content_type: /\bjson$/
+  f.adapter Faraday.default_adapter
+end
+
 openai_client = OpenAI::Client.new(
   access_token: api_key,
   log_errors: true,
-  timeout: nil
+  connection: faraday_conn
 )
 
 weather_report_json = fetch_weather_report(options[:latitude], options[:longitude])
