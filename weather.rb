@@ -90,7 +90,8 @@ api_key = ENV['OPENAI_KEY']
 
 openai_client = OpenAI::Client.new(
   access_token: api_key,
-  log_errors: true
+  log_errors: true,
+  timeout: nil
 )
 
 weather_report_json = fetch_weather_report(options[:latitude], options[:longitude])
