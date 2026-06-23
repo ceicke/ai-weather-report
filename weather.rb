@@ -89,7 +89,7 @@ def fetch_weather_report(lat, lon)
 end
 
 api_key = ENV['OPENAI_KEY']
-openai_timeout = ENV.fetch('OPENAI_TIMEOUT', '1200').to_i
+openai_timeout = ENV.fetch('OPENAI_TIMEOUT', '1800').to_i
 openai_retries = ENV.fetch('OPENAI_RETRIES', '3').to_i
 openai_retry_backoff = ENV.fetch('OPENAI_RETRY_BACKOFF', '4').to_i
 
