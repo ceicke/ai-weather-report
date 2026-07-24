@@ -22,8 +22,8 @@ def open_image(file_path)
   system("open #{file_path}")
 end
 
-def create_symlink(dir_path, file_path)
-  FileUtils.copy_file(file_path, dir_path + '/current.png')
+def create_symlink(dir_path, file_path, location)
+  FileUtils.copy_file(file_path, "#{dir_path}/current_#{location}.png")
 end
 
 # Helper to read prompt templates from file and replace placeholders
@@ -42,7 +42,8 @@ options = {
   temperature: 1, # Default temperature set to 0.9
   latitude: 53.5705, # Hamburg default
   longitude: 10.0329, # Hamburg default
-  size: "1536x1024" # Default image size
+  size: "1536x1024", # Default image size
+  location: "hamburg" # Default location (looks up prompts/<location>.txt)
 }
 
 OptionParser.new do |opts|
@@ -71,7 +72,19 @@ OptionParser.new do |opts|
   opts.on("--size SIZE", String, "Image size for output (default: 1536x1024)") do |v|
     options[:size] = v
   end
+
+  opts.on("--location LOCATION", String, "Location name; reads prompts/<location>.txt (default: hamburg)") do |v|
+    options[:location] = v.downcase
+  end
 end.parse!
+
+# Each location has its own image prompt at prompts/<location>.txt.
+image_prompt_file = File.join(__dir__, 'prompts', "#{options[:location]}.txt")
+unless File.exist?(image_prompt_file)
+  abort "Unknown location '#{options[:location]}': no prompt file found at #{image_prompt_file}"
+end
+# Human-readable name used to fill {{LOCATION}} in the shared text weather report.
+location_name = options[:location].capitalize
 
 def fetch_weather_report(lat, lon)
   location = OpenMeteo::Entities::Location.new(
@@ -125,6 +138,7 @@ now = Time.now
 weather_report_prompt = read_prompt_template(
   File.join(__dir__, 'prompts', 'weather_report_prompt.txt'),
   {
+    'LOCATION' => location_name,
     'WEATHER_REPORT_JSON' => weather_report_json.to_s,
     'CURRENT_WEEKDAY' => now.strftime('%A'),
     'CURRENT_DATE' => now.strftime('%Y-%m-%d'),
@@ -162,7 +176,7 @@ animal_presenters = [
 todays_presenter = animal_presenters.sample
 
 image_weather_prompt = read_prompt_template(
-  File.join(__dir__, 'prompts', 'image_weather_prompt.txt'),
+  image_prompt_file,
   {
     'PRESENTER' => todays_presenter,
     'WEATHER_REPORT' => weather_report
@@ -183,7 +197,7 @@ image_b64 = response.dig("data", 0, "b64_json")
 
 dir_path = 'output_images'
 FileUtils.mkdir_p(dir_path)
-file_path = "#{dir_path}/#{DateTime.now.to_s}.png"
+file_path = "#{dir_path}/#{options[:location]}_#{DateTime.now.to_s}.png"
 save_image_to_disk(image_b64, file_path)
-create_symlink(dir_path, file_path)
+create_symlink(dir_path, file_path, options[:location])
 open_image(file_path) if options[:open_image]

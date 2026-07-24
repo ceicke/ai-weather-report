@@ -46,15 +46,23 @@ ruby weather.rb [options]
 - `--lat LAT`              Latitude for weather data (default: 53.5705 for Hamburg)
 - `--lon LON`              Longitude for weather data (default: 10.0329 for Hamburg)
 - `--size SIZE`            Image size for output (default: 1536x1024)
+- `--location LOCATION`    Location name; uses `prompts/<location>.txt` as the image prompt (default: hamburg)
 
 Example:
 ```sh
-ruby weather.rb --debug --open-image --lat 48.1371 --lon 11.5754 --size 1024x1024
+ruby weather.rb --debug --open-image --lat 53.3167 --lon 12.8333 --size 1024x1024 --location havelberge
 ```
 
+To add a new location, create a `prompts/<location>.txt` file containing the full image
+prompt for that place (see `prompts/hamburg.txt` for reference). Customize the scene freely —
+e.g. city architecture vs. nature. The `{{PRESENTER}}` and `{{WEATHER_REPORT}}` placeholders are
+filled in by the script. The shared `prompts/weather_report_prompt.txt` (the written forecast)
+uses the capitalized `--location` value for its `{{LOCATION}}`. Coordinates are still passed
+separately via `--lat`/`--lon`.
+
 ## Output
-- Images are saved in the `output_images/` directory with a timestamped filename.
-- The latest image is also available as `output_images/current.png`.
+- Images are saved in the `output_images/` directory with a `<location>_<timestamp>.png` filename.
+- The latest image per location is also available as `output_images/current_<location>.png` (e.g. `current_hamburg.png`).
 
 ## Project Structure
 - `weather.rb`                Main CLI script
