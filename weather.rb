@@ -153,7 +153,7 @@ temperature = options[:temperature]
 weather_report_response = with_openai_retry(openai_retries, openai_retry_backoff, debug: options[:debug]) do
   openai_client.chat(
     parameters: {
-      model: "gpt-5.5",
+      model: "gpt-5.6-luna",
       messages: [
         { 
           role: "user", 
@@ -187,7 +187,7 @@ response = with_openai_retry(openai_retries, openai_retry_backoff, debug: option
   openai_client.images.generate(
     parameters: {
       prompt: image_weather_prompt,
-      model: "gpt-image-2",
+      model: "gpt-image-2.5-flare",
       size: options[:size],
     }
   )
