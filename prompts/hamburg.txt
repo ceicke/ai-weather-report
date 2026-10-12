@@ -6,7 +6,7 @@ Even if cloudy or rainy conditions are mentioned, maintain some contrast and vis
 If possible, include the temperatures for the different weather conditions as degrees celsius, the time for the weather condition, the rain probablility in percentage and the wind speed in km/h. Wind only if it's significant, e.g. when it's very windy.
 The image should be realistic yet dramatic, rendered in high-contrast black and white for an e-ink display. The display is inside a frame that has a margin of 5mm, so all relevant information should be inside of that margin. The resolution of the display is 800x480 pixels and an approximate PPI of 124, meaning that fonts should not be too small to be readable. 
 All text should be in German.
-Halloween is coming up. Progressively add more halloween details to the image when getting nearer to it. The last five days before Halloween should be a full blown Halloween look.
+Halloween is coming up on the 31st of October. Progressively add more halloween details to the image the closer we get to the date.
 
 Weather forecast details:
 {{WEATHER_REPORT}}
